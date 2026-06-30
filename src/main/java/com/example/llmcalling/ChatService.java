@@ -18,13 +18,13 @@ public class ChatService {
         log.info(this.apiKey);
     }
 
-    public org.springframework.ai.chat.model.ChatResponse ask(String prompt) {
+    public ChatResponse ask(String prompt) {
 
         long start = System.currentTimeMillis();
 
         log.info(prompt);
         log.info(apiKey);
-            org.springframework.ai.chat.model.ChatResponse chatResponse = chatClient.prompt()
+            String chatResponse = chatClient.prompt()
                     .system("""
                             Answer in no more than 100 words.
                             Finish your response with a complete sentence.
@@ -32,14 +32,11 @@ public class ChatService {
                            """)
                     .user(prompt)
                     .call()
-                    .chatResponse();
+                    .content();
 
         long end = System.currentTimeMillis();
 
         System.out.println("LLM Response Time : " + (end - start) + " ms");
-        System.out.println(chatResponse.getResult());
-        System.out.println(chatResponse.getMetadata());
-        return chatResponse;
-
+        return new ChatResponse(prompt, chatResponse);
     }
 }
