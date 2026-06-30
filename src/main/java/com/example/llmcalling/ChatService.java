@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
 
 @Service
 @Slf4j
@@ -18,25 +19,25 @@ public class ChatService {
         log.info(this.apiKey);
     }
 
-    public ChatResponse ask(String prompt) {
+    public Flux<String> ask(String prompt) {
 
         long start = System.currentTimeMillis();
 
         log.info(prompt);
         log.info(apiKey);
-            String chatResponse = chatClient.prompt()
+           Flux<String> stream=chatClient.prompt()
                     .system("""
                             Answer in no more than 100 words.
                             Finish your response with a complete sentence.
                             Never stop mid-sentence.
                            """)
                     .user(prompt)
-                    .call()
+                    .stream()
                     .content();
 
         long end = System.currentTimeMillis();
 
         System.out.println("LLM Response Time : " + (end - start) + " ms");
-        return new ChatResponse(prompt, chatResponse);
+        return stream;
     }
 }
